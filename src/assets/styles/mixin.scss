@@ -1,0 +1,31 @@
+$fontSize: 37.5;
+
+// 1rem = fontSize px
+// 1px = (1 / fontSize)rem
+@function px2rem($px) {
+  @return ($px / $fontSize) + rem;
+}
+
+@mixin center () {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin left () {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+}
+
+@mixin right () {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+}
+
+@mixin ellipsis () {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
