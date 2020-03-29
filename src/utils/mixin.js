@@ -1,6 +1,7 @@
 import { mapGetters, mapActions } from 'vuex'
-import { addCss, removeAllCss, themeList } from './book'
-import { saveLocation } from './localStorage'
+import { addCss, removeAllCss, themeList, getReadTimeMinute } from './book'
+import { getBookmark, saveLocation } from './localStorage'
+// import book from '../store/modules/book'
 
 export const ebookMixin = {
   computed: {
@@ -59,11 +60,23 @@ export const ebookMixin = {
     },
     refreshProgress () {
       const currentLocation = this.currentBook.rendition.currentLocation()
-      const startCfi = currentLocation.start.cfi
-      const progress = this.currentBook.locations.percentageFromCfi(startCfi)
-      this.setProgress(Math.floor(progress * 100))
-      this.setSection(currentLocation.start.index)
-      saveLocation(this.fileName, startCfi)
+      if (currentLocation && currentLocation.start) {
+        const startCfi = currentLocation.start.cfi
+        const progress = this.currentBook.locations.percentageFromCfi(startCfi)
+        this.setSection(currentLocation.start.index)
+        this.setProgress(Math.floor(progress * 100))
+        saveLocation(this.fileName, startCfi)
+        const bookmark = getBookmark(this.fileName)
+        if (bookmark) {
+          if (bookmark.some(item => item.cfi === startCfi)) {
+            this.setIsBookmark(true)
+          } else {
+            this.setIsBookmark(false)
+          }
+        } else {
+          this.setIsBookmark(false)
+        }
+      }
     },
     display (target, fn) {
       if (target) {
@@ -77,6 +90,15 @@ export const ebookMixin = {
           if (fn) fn()
         })
       }
+    },
+    // 隐藏标题和菜单
+    hideTitleAndMenu () {
+      this.setMenuVisible(false)
+      this.setSettingVisible(-1)
+      this.setFontFamilyVisible(false)
+    },
+    getSectionNameText () {
+      return this.$t('book.haveRead').replace('$1', getReadTimeMinute(this.fileName))
     }
   }
 }

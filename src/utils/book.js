@@ -1,3 +1,5 @@
+import { getReadTime } from './localStorage'
+
 export const FONT_SIZE_LIST = [
   { fontSize: 12 },
   { fontSize: 14 },
@@ -25,6 +27,8 @@ export function themeList (vue) {
         body: {
           color: '#4c5059',
           background: '#cecece'
+          // 'padding-top': `${realPx(48)}px!important`,
+          // 'padding-bottom': `${realPx(48)}px!important`
         }
       }
     },
@@ -35,6 +39,8 @@ export function themeList (vue) {
         body: {
           color: '#5c5b56',
           background: '#c6c2b6'
+          // 'padding-top': `${realPx(48)}px!important`,
+          // 'padding-bottom': `${realPx(48)}px!important`
         }
       }
     },
@@ -45,6 +51,8 @@ export function themeList (vue) {
         body: {
           color: '#404c42',
           background: '#a9c1a9'
+          // 'padding-top': `${realPx(48)}px!important`,
+          // 'padding-bottom': `${realPx(48)}px!important`
         }
       }
     },
@@ -55,6 +63,8 @@ export function themeList (vue) {
         body: {
           color: '#cecece',
           background: '#000000'
+          // 'padding-top': `${realPx(48)}px!important`,
+          // 'padding-bottom': `${realPx(48)}px!important`
         }
       }
     }
@@ -62,11 +72,11 @@ export function themeList (vue) {
 }
 
 export function addCss (href) {
-  const item = document.createElement('link')
-  item.setAttribute('type', 'text/css')
-  item.setAttribute('rel', 'stylesheet')
-  item.setAttribute('href', href)
-  document.getElementsByTagName('link')[0].appendChild(item)
+  const link = document.createElement('link')
+  link.setAttribute('rel', 'stylesheet')
+  link.setAttribute('type', 'text/css')
+  link.setAttribute('href', href)
+  document.getElementsByTagName('head')[0].appendChild(link)
 }
 
 export function removeCss (href) {
@@ -79,8 +89,21 @@ export function removeCss (href) {
 }
 
 export function removeAllCss () {
-  removeCss(`${process.env.VUE_APP_RES_URP}/resource/theme/theme_default`)
-  removeCss(`${process.env.VUE_APP_RES_URP}/resource/theme/theme_gold`)
-  removeCss(`${process.env.VUE_APP_RES_URP}/resource/theme/theme_eye`)
-  removeCss(`${process.env.VUE_APP_RES_URP}/resource/theme/theme_night`)
+  removeCss(`${process.env.VUE_APP_RES_URL}/resource/theme/theme_default.css`)
+  removeCss(`${process.env.VUE_APP_RES_URL}/resource/theme/theme_eye.css`)
+  removeCss(`${process.env.VUE_APP_RES_URL}/resource/theme/theme_gold.css`)
+  removeCss(`${process.env.VUE_APP_RES_URL}/resource/theme/theme_night.css`)
+}
+
+export function getReadTimeMinute (fileName) {
+  const readTime = getReadTime(fileName)
+  if (!readTime) {
+    return 0
+  } else {
+    return Math.ceil(readTime / 60)
+  }
+}
+
+export function flatten (arr) {
+  return [].concat(...arr.map(item => [].concat(item, ...flatten(item.subitems))))
 }

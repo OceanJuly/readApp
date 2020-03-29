@@ -1,5 +1,11 @@
 <template>
+  <div class="ebook-reader">
     <div id="read"></div>
+    <div class="ebook-reader-mask"
+         @click="onMaskClick"
+         @touchmove="move"
+         @touchend="moveEnd"></div>
+  </div>
 </template>
 
 <script>
@@ -7,6 +13,7 @@ import { mapGetters } from 'vuex'
 import Epub from 'epubjs'
 import { ebookMixin } from '../../utils/mixin'
 import { getFontFamily, getFontSize, getTheme, saveFontFamily, saveFontSize, saveTheme, getLocation } from '../../utils/localStorage'
+import { flatten } from '../../utils/book'
 
 export default {
   name: 'EbookReader',
@@ -17,7 +24,8 @@ export default {
       this.book = new Epub(url)
       this.setCurrentBook(this.book)
       this.initRendition()
-      this.initGestrue()
+      // this.initGestrue()
+      this.parseBook()
       this.book.ready.then(() => {
         return this.book.locations.generate(750 * (window.innerWidth) / 375 * (getFontSize(this.fileName) / 16))
       }).then(() => {
@@ -67,6 +75,33 @@ export default {
         }
       })
     },
+    // 取代epubjs事件，采用模板事件
+    onMaskClick (e) {
+      const offsettX = e.offsetX
+      const width = window.innerWidth
+      if (offsettX > 0 && offsettX < width * 0.3) {
+        this.prevPage()
+      } else if (offsettX > 0 && offsettX > width * 0.7) {
+        this.nextPage()
+      } else {
+        this.showTitleAndMenu()
+      }
+    },
+    move (e) {
+      let offsetY = 0
+      if (this.firstOffsetY) {
+        offsetY = e.changedTouches[0].clientY - this.firstOffsetY
+        this.setOffsetY(offsetY)
+      } else {
+        this.firstOffsetY = e.changedTouches[0].clientY
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    moveEnd (e) {
+      this.setOffsetY(0)
+      this.firstOffsetY = null
+    },
     prevPage () {
       if (this.rendition) {
         this.rendition.prev().then(() => {
@@ -89,11 +124,6 @@ export default {
         this.setFontFamilyVisible(false)
       }
       this.setMenuVisible(!this.menuVisible)
-    },
-    hideTitleAndMenu () {
-      this.setMenuVisible(false)
-      this.setSettingVisible(-1)
-      this.setFontFamilyVisible(false)
     },
     initFontFamily () {
       const font = getFontFamily(this.fileName)
@@ -124,6 +154,26 @@ export default {
         this.rendition.themes.register(theme.name, theme.style)
       })
       this.rendition.themes.select(theme)
+    },
+    parseBook () {
+      this.book.loaded.cover.then(cover => {
+        this.book.archive.createUrl(cover).then(url => {
+          this.setCover(url)
+        })
+      })
+      this.book.loaded.metadata.then(metadata => {
+        this.setMetadata(metadata)
+      })
+      this.book.loaded.navigation.then(nav => {
+        const navItem = flatten(nav.toc)
+        function find (item, level = 0) {
+          return !item.parent ? level : find(navItem.filter(parentItem => parentItem.id === item.parent)[0], ++level)
+        }
+        navItem.forEach(item => {
+          item.level = find(item)
+        })
+        this.setNavigation(navItem)
+      })
     }
   },
   mounted () {
