@@ -1,4 +1,6 @@
 $fontSize: 37.5;
+$animationTime: .2s;
+$animationType: linear;
 
 // 1rem = fontSize px
 // 1px = (1 / fontSize)rem
@@ -38,4 +40,31 @@ $fontSize: 37.5;
   overflow: hidden;
   white-space: nowrap;
   word-break: keep-all;
+}
+
+.icon {
+  font-size: px2rem(16);
+  color: #666666;
+}
+
+.title {
+  font-size: px2rem(16);
+  color: #666666;
+  font-weight: bold;
+}
+
+@mixin scroll {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@mixin columnLeft {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }

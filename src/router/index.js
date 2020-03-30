@@ -6,18 +6,26 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    redirect: './ebook'
+    redirect: '/store'
   },
   {
     path: '/ebook',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/ebook'),
+    component: () => import('../views/ebook/index.vue'),
     children: [
       {
         path: ':fileName',
         component: () => import('../components/ebook/EbookReader.vue')
+      }
+    ]
+  },
+  {
+    path: '/store',
+    component: () => import('../views/store/index.vue'),
+    redirect: '/store/home',
+    children: [
+      {
+        path: 'home',
+        component: () => import('../views/store/storeHome.vue')
       }
     ]
   }

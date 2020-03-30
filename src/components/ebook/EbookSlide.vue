@@ -26,18 +26,20 @@
 import { ebookMixin } from '../../utils/mixin'
 import EbookSlideContents from './EbookSlideContents'
 import EbookLoading from './EbookLoading'
+import EbookBookmark from './EbookSlideBookmark'
 
 export default {
   name: 'EbookSlide',
   mixins: [ebookMixin],
   components: {
-    EbookLoading
+    EbookLoading,
+    EbookBookmark
   },
   data () {
     return {
       currentTab: 1,
       content: EbookSlideContents,
-      bookmark: null
+      bookmark: EbookBookmark
     }
   },
   methods: {
@@ -49,7 +51,7 @@ export default {
 </script>
 
 <style scoped lang='scss' rel='stylesheet/scss'>
-  @import "../../assets/styles/global";
+@import "../../assets/styles/global";
 
 .slide-content-wrapper {
   position: absolute;

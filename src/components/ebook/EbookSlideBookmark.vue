@@ -13,31 +13,31 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import Scroll from '../common/Scroll'
-  import { getBookmark } from '../../utils/localStorage'
-  import { ebookMixin } from '../../utils/mixin'
+import Scroll from '../common/Scroll'
+import { getBookmark } from '../../utils/localStorage'
+import { ebookMixin } from '../../utils/mixin'
 
-  export default {
-    mixins: [ebookMixin],
-    components: {
-      Scroll
-    },
-    data() {
-      return {
-        bookmark: null
-      }
-    },
-    methods: {
-      displayBookmark(target) {
-        this.display(target, () => {
-          this.hideTitleAndMenu()
-        })
-      }
-    },
-    mounted() {
-      this.bookmark = getBookmark(this.fileName)
+export default {
+  mixins: [ebookMixin],
+  components: {
+    Scroll
+  },
+  data () {
+    return {
+      bookmark: null
     }
+  },
+  methods: {
+    displayBookmark (target) {
+      this.display(target, () => {
+        this.hideTitleAndMenu()
+      })
+    }
+  },
+  mounted () {
+    this.bookmark = getBookmark(this.fileName)
   }
+}
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
@@ -52,7 +52,7 @@
       font-weight: bold;
       padding: 0 px2rem(15);
       box-sizing: border-box;
-      @include left;
+      @include left();
     }
     .slide-bookmark-list {
       padding: 0 px2rem(15);

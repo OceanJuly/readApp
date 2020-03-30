@@ -4,7 +4,10 @@
     <div class="ebook-reader-mask"
          @click="onMaskClick"
          @touchmove="move"
-         @touchend="moveEnd"></div>
+         @touchend="moveEnd"
+         @mousedown.left="onMouseEnter"
+         @mousemove.left="onMouseMove"
+         @mouseup.left="onMouseEnd"></div>
   </div>
 </template>
 
@@ -19,6 +22,48 @@ export default {
   name: 'EbookReader',
   mixins: [ebookMixin],
   methods: {
+    /*
+    1 - 鼠标进入
+    2 - 鼠标点击后移动
+    3 - 鼠标点击后松手
+    4 - 鼠标还原
+     */
+    onMouseEnter (e) {
+      this.mouseState = 1
+      this.mouseStartTime = e.timestamp
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    onMouseMove (e) {
+      if (this.mouseState === 1) {
+        this.mouseState = 2
+      } else if (this.mouseState === 2) {
+        let offsetY = 0
+        if (this.firstOffsetY) {
+          offsetY = e.clientY - this.firstOffsetY
+          this.setOffsetY(offsetY)
+        } else {
+          this.firstOffsetY = e.clientY
+        }
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    onMouseEnd (e) {
+      if (this.mouseState === 2) {
+        this.setOffsetY(0)
+        this.firstOffsetY = null
+        this.mouseState = 3
+      } else {
+        this.mouseState = 4
+      }
+      const time = e.timestamp - this.mouseStartTime
+      if (time < 100) {
+        this.mouseState = 4
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
     initEpub () {
       const url = `${process.env.VUE_APP_RES_URL}/resource/epub/${this.fileName}.epub`
       this.book = new Epub(url)
@@ -28,7 +73,7 @@ export default {
       this.parseBook()
       this.book.ready.then(() => {
         return this.book.locations.generate(750 * (window.innerWidth) / 375 * (getFontSize(this.fileName) / 16))
-      }).then(() => {
+      }).then(locations => {
         this.setBookAvailable(true)
         this.refreshProgress()
       })
@@ -39,6 +84,7 @@ export default {
         width: innerWidth,
         height: innerHeight,
         mothod: 'default'
+        // flow: 'scrolled'
       })
       const location = getLocation(this.fileName)
       this.display(location, () => {
@@ -77,6 +123,9 @@ export default {
     },
     // 取代epubjs事件，采用模板事件
     onMaskClick (e) {
+      if (this.mouseState && (this.mouseState === 2 || this.mouseState === 3)) {
+        return
+      }
       const offsettX = e.offsetX
       const width = window.innerWidth
       if (offsettX > 0 && offsettX < width * 0.3) {

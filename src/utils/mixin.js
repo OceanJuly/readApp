@@ -28,6 +28,19 @@ export const ebookMixin = {
     ]),
     themeList () {
       return themeList(this)
+    },
+    getSectionName () {
+      // if (this.section) {
+      //   const sectionInfo = this.currentBook.section(this.section)
+      //   if (sectionInfo && sectionInfo.href && this.currentBook && this.currentBook.navigation) {
+      //     return this.currentBook.navigation.get(sectionInfo.href).label
+      //   } else {
+      //     return ''
+      //   }
+      // } else {
+      //   return ''
+      // }
+      return this.section ? this.navigation[this.section].label : ''
     }
   },
   methods: {
@@ -100,5 +113,20 @@ export const ebookMixin = {
     getSectionNameText () {
       return this.$t('book.haveRead').replace('$1', getReadTimeMinute(this.fileName))
     }
+  }
+}
+
+export const storeHomeMixin = {
+  computed: {
+    ...mapGetters([
+      'offsetY',
+      'hotSearchOffsetY'
+    ])
+  },
+  methods: {
+    ...mapActions([
+      'setOffsetY',
+      'setHotSearchOffsetY'
+    ])
   }
 }
