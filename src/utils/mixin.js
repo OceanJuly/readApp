@@ -120,13 +120,18 @@ export const storeHomeMixin = {
   computed: {
     ...mapGetters([
       'offsetY',
-      'hotSearchOffsetY'
+      'hotSearchOffsetY',
+      'flapCardVisible'
     ])
   },
   methods: {
     ...mapActions([
       'setOffsetY',
-      'setHotSearchOffsetY'
-    ])
+      'setHotSearchOffsetY',
+      'setFlapCardVisible'
+    ]),
+    showBookDetail (book) {
+      console.log('进入阅读界面')
+    }
   }
 }
