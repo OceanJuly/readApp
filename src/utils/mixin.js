@@ -131,7 +131,13 @@ export const storeHomeMixin = {
       'setFlapCardVisible'
     ]),
     showBookDetail (book) {
-      console.log('进入阅读界面')
+      this.$router.push({
+        path: '/store/detail',
+        query: {
+          fileName: book.fileName,
+          category: book.categoryText
+        }
+      })
     }
   }
 }

@@ -2,9 +2,21 @@ $ratio: 375 / 10;
 $animationTime: .2s;
 $animationType: linear;
 $fontSize: 37.5;
+$homeAnimationTime: .2s;
 
 @function px2rem($px) {
   @return $px / $ratio + rem;
+}
+
+.icon {
+  font-size: px2rem(16);
+  color: #666666;
+}
+
+.title {
+  font-size: px2rem(16);
+  color: #666666;
+  font-weight: bold;
 }
 
 @mixin scroll {
@@ -171,7 +183,7 @@ $fontSize: 37.5;
   opacity: 1;
 }
 
-$homeAnimationTime: .2s;
+$AnimationTime: .2s;
 .title-enter-active, .title-leave-active, .host-search-enter-active, .host-search-leave-active, .shelf-tab-slide-up-enter-active, .shelf-tab-slide-up-leave-active {
   transition: all $homeAnimationTime linear;
 }
