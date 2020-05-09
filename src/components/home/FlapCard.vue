@@ -1,5 +1,5 @@
 <template>
-  <div class="flap-card-wrapper" v-show="flapCardVisible">
+  <div class="flap-card-wrapper" v-if="flapCardVisible">
     <div class="flap-card-bg" :class="{'animation': runFlapCardAnimation}" v-show="runFlapCardAnimation">
       <div class="flap-card" v-for="(item, index) in flapCardList" :key="index" :style='{zIndex: item.zIndex}'>
         <div class="flap-car-circle">

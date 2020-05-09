@@ -16,7 +16,7 @@ import { mapGetters } from 'vuex'
 import Epub from 'epubjs'
 import { ebookMixin } from '../../utils/mixin'
 import { getFontFamily, getFontSize, getTheme, saveFontFamily, saveFontSize, saveTheme, getLocation } from '../../utils/localStorage'
-import { flatten } from '../../utils/book'
+import { getLocalForage } from '../../utils/localForage'
 
 export default {
   name: 'EbookReader',
@@ -64,19 +64,12 @@ export default {
       e.preventDefault()
       e.stopPropagation()
     },
-    initEpub () {
-      const url = `${process.env.VUE_APP_RES_URL}/resource/epub/${this.fileName}.epub`
+    initEpub (url) {
       this.book = new Epub(url)
       this.setCurrentBook(this.book)
       this.initRendition()
       // this.initGestrue()
       this.parseBook()
-      this.book.ready.then(() => {
-        return this.book.locations.generate(750 * (window.innerWidth) / 375 * (getFontSize(this.fileName) / 16))
-      }).then(locations => {
-        this.setBookAvailable(true)
-        this.refreshProgress()
-      })
     },
     // epubjs 初始渲染
     initRendition () {
@@ -214,21 +207,71 @@ export default {
         this.setMetadata(metadata)
       })
       this.book.loaded.navigation.then(nav => {
-        const navItem = flatten(nav.toc)
-        function find (item, level = 0) {
-          return !item.parent ? level : find(navItem.filter(parentItem => parentItem.id === item.parent)[0], ++level)
+        const navItem = (function flatten (arr) {
+          return [].concat(...arr.map(v => [v, ...flatten(v.subitems)]))
+        })(nav.toc)
+
+        function find (item, v = 0) {
+          const parent = navItem.filter(it => it.id === item.parent)[0]
+          return !item.parent ? v : (parent ? find(parent, ++v) : v)
         }
+
         navItem.forEach(item => {
           item.level = find(item)
+          item.total = 0
+          item.pagelist = []
+          if (item.href.match(/^(.*)\.html$/)) {
+            item.idhref = item.href.match(/^(.*)\.html$/)[1]
+          } else if (item.href.match(/^(.*)\.xhtml$/)) {
+            item.idhref = item.href.match(/^(.*)\.xhtml$/)[1]
+          }
         })
         this.setNavigation(navItem)
+      })
+      this.book.ready.then(() => {
+        this.setCurrentBook(this.book)
+        return this.book.locations.generate(750 * (window.innerWidth) / 375 * (getFontSize(this.fileName) / 16))
+      }).then(locations => {
+        locations.forEach(location => {
+          const loc = location.match(/\[(.*)\]!/)[1]
+          // console.log(loc)
+          this.navigation.forEach(item => {
+            if (item.idhref && item.idhref.indexOf(loc) >= 0) {
+              item.pagelist.push(location)
+            }
+          })
+          let currentPage = 1
+          this.navigation.forEach((item, index) => {
+            if (index === 0) {
+              item.page = 1
+            } else {
+              item.page = currentPage
+            }
+            currentPage += item.pagelist.length + 1
+          })
+        })
+        // saveNavigation(this.fileName, this.navigation)
+        this.setPagelist(locations)
+        this.setBookAvailable(true)
+        this.setIsPaginating(false)
+        this.refreshLocation()
       })
     }
   },
   mounted () {
-    const fileName = this.$route.params.fileName.split('|').join('/')
-    this.$store.dispatch('setFileName', fileName).then(() => {
-      this.initEpub()
+    const books = this.$route.params.fileName.split('|')
+    const fileName = books[1]
+    getLocalForage(fileName, (err, blob) => {
+      if (!err && blob) {
+        this.setFileName(books.join('/')).then(() => {
+          this.initEpub(blob)
+        })
+      } else {
+        this.setFileName(books.join('/')).then(() => {
+          const url = `${process.env.VUE_APP_RES_URL}/resource/epub/${this.fileName}.epub`
+          this.initEpub(url)
+        })
+      }
     })
   },
   computed: {

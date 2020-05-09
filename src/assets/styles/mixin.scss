@@ -2,7 +2,7 @@ $ratio: 375 / 10;
 $animationTime: .2s;
 $animationType: linear;
 $fontSize: 37.5;
-$homeAnimationTime: .2s;
+$AnimationTime: .2s;
 
 @function px2rem($px) {
   @return $px / $ratio + rem;
@@ -184,6 +184,7 @@ $homeAnimationTime: .2s;
 }
 
 $AnimationTime: .2s;
+$homeAnimationTime: .2s;
 .title-enter-active, .title-leave-active, .host-search-enter-active, .host-search-leave-active, .shelf-tab-slide-up-enter-active, .shelf-tab-slide-up-leave-active {
   transition: all $homeAnimationTime linear;
 }
